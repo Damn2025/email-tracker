@@ -22,8 +22,9 @@ def track_email(user_id):
     It logs the event and returns the pixel image.
     """
     try:
-        # Get user's IP address from the request
-        ip_address = request.remote_addr
+        # Get user's IP address. In a production environment behind a proxy (like Render),
+        # the IP is often in the 'X-Forwarded-For' header.
+        ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
         
         # Log the email open event. You could save this to a database instead.
         log_message = f"Email opened! User ID: {user_id}, IP: {ip_address}, Time: {datetime.now()}"
