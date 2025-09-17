@@ -44,5 +44,5 @@ def handle_action(user_id):
 
 if __name__ == '__main__':
     # Run the server. In a production environment, you would use a more robust
-    # server like Gunicorn or uWSGI.
-    app.run(debug=True)
+    # server like Gunicorn. The 'if' block is not executed on Render.
+    app.run(host='0.0.0.0', port=5000, debug=True)
