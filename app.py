@@ -2,6 +2,7 @@ from flask import Flask, Response, request
 import logging
 from datetime import datetime
 
+import pytz
 from my_action import perform_action
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
@@ -26,8 +27,12 @@ def track_email(user_id):
         # the IP is often in the 'X-Forwarded-For' header.
         ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
         
+        # Get the current time in Indian Standard Time (IST)
+        ist_timezone = pytz.timezone('Asia/Kolkata')
+        current_time_ist = datetime.now(ist_timezone)
+        
         # Log the email open event. You could save this to a database instead.
-        log_message = f"Email opened! User ID: {user_id}, IP: {ip_address}, Time: {datetime.now()}"
+        log_message = f"Email opened! User ID: {user_id}, IP: {ip_address}, Time: {current_time_ist.strftime('%Y-%m-%d %H:%M:%S %Z')}"
         logging.info(log_message)
         
     except Exception as e:
