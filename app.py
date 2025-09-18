@@ -50,7 +50,7 @@ def update_google_sheet(user_id):
     try:
         client = gspread.authorize(CREDS)
         # Make sure to use the exact name of your sheet
-        sheet = client.open("Copy of n8n Test").worksheet("Test") # Or your specific sheet/tab name
+        sheet = client.open("em1").worksheet("Sheet1") # Or your specific sheet/tab name
         all_values = sheet.get_all_values()
 
         # Check if headers exist, if not, add them
