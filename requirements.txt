@@ -1,4 +1,6 @@
-Flask
-gunicorn
+flask
+gspread
+oauth2client
 pytz
 psycopg2-binary
+gunicorn
