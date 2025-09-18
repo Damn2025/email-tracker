@@ -16,12 +16,9 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 SCOPE = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/drive']
 
 # Load credentials from environment variables for deployment
-if os.path.exists('credentials.json'):
-    # Use the JSON file when running locally
-    CREDS = ServiceAccountCredentials.from_json_keyfile_name('credentials.json', SCOPE)
-else:
+
     # Use environment variables on Render/Heroku
-    creds_json = {
+creds_json = {
         "type": "service_account",
         "project_id": os.environ.get("GCP_PROJECT_ID"),
         "private_key_id": os.environ.get("GCP_PRIVATE_KEY_ID"),
@@ -29,7 +26,7 @@ else:
         "client_email": os.environ.get("GCP_CLIENT_EMAIL"),
         "client_id": os.environ.get("GCP_CLIENT_ID"),
     }
-    CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_json, SCOPE)
+CREDS = ServiceAccountCredentials.from_json_keyfile_dict(creds_json, SCOPE)
 # Database connection
 def get_db_connection():
     conn = psycopg2.connect(os.environ.get("DATABASE_URL"))

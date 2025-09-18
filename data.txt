@@ -1,0 +1,3 @@
+internal:postgresql://email_track_user:IGttYRlE2uFewoA4onkhlpNtSZI5JHiC@dpg-d3592dd6ubrc73d0h0i0-a/email_track
+external:postgresql://email_track_user:IGttYRlE2uFewoA4onkhlpNtSZI5JHiC@dpg-d3592dd6ubrc73d0h0i0-a.oregon-postgres.render.com/email_track
+PSQL:PGPASSWORD=IGttYRlE2uFewoA4onkhlpNtSZI5JHiC psql -h dpg-d3592dd6ubrc73d0h0i0-a.oregon-postgres.render.com -U email_track_user email_track

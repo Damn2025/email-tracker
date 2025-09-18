@@ -1,2 +1,6 @@
-data.txt
+# Ignore sensitive credential files
 credentials.json
+
+# Ignore Python virtual environment and cache files
+venv/
+__pycache__/
