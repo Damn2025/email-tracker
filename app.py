@@ -45,12 +45,12 @@ pixel_data = (
     b'\x2c\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02\x4c\x01\x00\x3b'
 )
 
-def update_google_sheet(user_id):
+def update_google_sheet(user_id, spreadsheet_name, worksheet_name):
     """Updates the Google Sheet with the email open event."""
     try:
         client = gspread.authorize(CREDS)
-        # Make sure to use the exact name of your sheet
-        sheet = client.open("em1").worksheet("Sheet1") # Or your specific sheet/tab name
+        # Dynamically open the spreadsheet and worksheet
+        sheet = client.open(spreadsheet_name).worksheet(worksheet_name)
         all_values = sheet.get_all_values()
 
         # Check if headers exist, if not, add them
@@ -101,18 +101,20 @@ def update_google_sheet(user_id):
     except Exception as e:
         logging.error(f"Error updating Google Sheet: {e}")
 
-@app.route('/track/<user_id>')
-def track_email(user_id):
+@app.route('/track/<spreadsheet_name>/<worksheet_name>/<user_id>')
+def track_email(spreadsheet_name, worksheet_name, user_id):
     try:
         ip_address = request.remote_addr
         # with get_db_connection() as conn:
         #     with conn.cursor() as cur:
         #         cur.execute("INSERT INTO email_logs (user_id, ip_address) VALUES (%s, %s)", (user_id, ip_address))
         #         conn.commit()
-        logging.info(f"Email open tracked for user: {user_id}")
+        logging.info(f"Email open tracked for user: {user_id} in sheet: {spreadsheet_name}/{worksheet_name}")
 
         # Update Google Sheet in a background thread to not block the response
-        threading.Thread(target=update_google_sheet, args=(user_id,)).start()
+        threading.Thread(target=update_google_sheet, args=(user_id, spreadsheet_name, worksheet_name)).start()
+
+
     except Exception as e:
         logging.error(f"Error logging email open: {e}")
     return Response(pixel_data, mimetype='image/gif')
