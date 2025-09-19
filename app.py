@@ -1,4 +1,4 @@
-from flask import Flask, Response, request
+from flask import Flask, Response, request, render_template
 import logging
 import os
 import json
@@ -120,22 +120,23 @@ def track_email(spreadsheet_name, worksheet_name, user_id):
     return Response(pixel_data, mimetype='image/gif')
 
 # New endpoint to show live data
-@app.route('/logs')
-def show_logs():
+@app.route('/dashboard/<spreadsheet_name>/<worksheet_name>')
+def show_dashboard(spreadsheet_name, worksheet_name):
     try:
-        # with get_db_connection() as conn:
-        #     with conn.cursor() as cur:
-        #         cur.execute("SELECT user_id, ip_address, created_at FROM email_logs ORDER BY created_at DESC;")
-        #         logs = cur.fetchall()
-        
-        # Format logs for display
-        output = "<h1>Database logging is currently disabled.</h1>"
-        logs = [] # Ensure logs is an empty list
-        for log in logs:
-            output += f"<p>User ID: {log[0]}, IP: {log[1]}, Time: {log[2]}</p>"
-        return output
+        client = gspread.authorize(CREDS)
+        sheet = client.open(spreadsheet_name).worksheet(worksheet_name)
+        all_data = sheet.get_all_values()
+
+        if not all_data:
+            return render_template('dashboard.html', error=f"No data found in '{spreadsheet_name}/{worksheet_name}'.")
+
+        headers = all_data[0]
+        rows = all_data[1:]
+        sheet_name_display = f"{spreadsheet_name} / {worksheet_name}"
+
+        return render_template('dashboard.html', headers=headers, rows=rows, sheet_name=sheet_name_display)
     except Exception as e:
-        return f"Error retrieving logs: {e}"
+        return render_template('dashboard.html', error=f"Could not retrieve data: {e}")
 
 if __name__ == '__main__':
     # initialize_database()
