@@ -8,21 +8,23 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import pytz
 import threading
+import base64
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(message)s')
 
 # --- Google Sheets Configuration ---
 SCOPE = ["https://spreadsheets.google.com/feeds", 'https://www.googleapis.com/auth/drive']
-
-# Load credentials from environment variables for deployment
-
-    # Use environment variables on Render/Heroku
+# Load credentials from environment variables.
+# For Render/Heroku, the GCP_PRIVATE_KEY is often stored as a single line.
+# Using base64 for the private key is a robust way to handle it.
+private_key_b64 = os.environ.get("GCP_PRIVATE_KEY_B64")
+private_key = base64.b64decode(private_key_b64).decode("utf-8") if private_key_b64 else os.environ.get("GCP_PRIVATE_KEY", "").replace('\\n', '\n')
 creds_json = {
         "type": "service_account",
         "project_id": os.environ.get("GCP_PROJECT_ID"),
         "private_key_id": os.environ.get("GCP_PRIVATE_KEY_ID"),
-        "private_key": os.environ.get("GCP_PRIVATE_KEY").replace('\\n', '\n'),
+        "private_key": private_key,
         "client_email": os.environ.get("GCP_CLIENT_EMAIL"),
         "client_id": os.environ.get("GCP_CLIENT_ID"),
     }
@@ -97,7 +99,10 @@ def update_google_sheet(user_id, spreadsheet_name, worksheet_name):
         logging.info(f"Google Sheet: Updated status for user '{user_id}'. New open count: {current_count + 1}.")
     except gspread.exceptions.GSpreadException as e:
         # Catch gspread-specific exceptions to get more detailed error messages
-        logging.error(f"GSpread API Error: {e}")
+        error_details = "No details available."
+        if hasattr(e, 'response') and hasattr(e.response, 'text'):
+            error_details = e.response.text
+        logging.error(f"GSpread API Error: {e}. Response body: {error_details}")
     except Exception as e:
         logging.error(f"Error updating Google Sheet: {e}")
 
